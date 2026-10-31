@@ -9,6 +9,8 @@ local cl_fcmdm_expand_key = CreateClientConVar('cl_fcmdm_expand_key', '0', true,
 local cl_fcmdm_call_key = CreateClientConVar('cl_fcmdm_call_key', '0', true, false)
 local cl_fcmdm_break_key = CreateClientConVar('cl_fcmdm_break_key', '0', true, false)
 local cl_fcmdm_wfile = CreateClientConVar('cl_fcmdm_wfile', 'fastcmd/wheel/chat.json', true, false)
+local cl_fcmdm_selected_file = CreateClientConVar('cl_fcmdm_selected_file', '', true, false)
+local cl_fcmdm_selected_index = CreateClientConVar('cl_fcmdm_selected_index', '0', true, false)
 -----------------------------
 local curcall
 local curwdata
@@ -29,7 +31,7 @@ function FcmdmSetCurCall(target)
 	if curcall ~= target then 
 		if istable(target) then
 			if (not isstring(target.pexecute) or target.pexecute == '') and (not isstring(target.rexecute) or target.rexecute == '') then 
-				return 
+				return false
 			end
 			
 			target.press = nil -- 重置按下状态, 防止切换后第一次是弹起
@@ -37,6 +39,43 @@ function FcmdmSetCurCall(target)
 		FcmdmExecuteCurBreak()
 		hook.Run('FcmdmCurCallChange', curcall, target)
 		curcall = target 
+	end
+	return true
+end
+
+function FcmdmClearSavedSelection()
+	cl_fcmdm_selected_file:SetString('')
+	cl_fcmdm_selected_index:SetInt(0)
+end
+
+function FcmdmSaveSelectedCall(index)
+	local filename = cl_fcmdm_wfile:GetString()
+	if filename == '' or not isnumber(index) then
+		FcmdmClearSavedSelection()
+		return
+	end
+
+	cl_fcmdm_selected_file:SetString(filename)
+	cl_fcmdm_selected_index:SetInt(index)
+end
+
+function FcmdmRestoreSavedSelection()
+	if not istable(curwdata) then return end
+
+	local filename = cl_fcmdm_wfile:GetString()
+	if filename == '' or cl_fcmdm_selected_file:GetString() ~= filename then return end
+
+	local index = cl_fcmdm_selected_index:GetInt()
+	local node = curwdata.metadata[index]
+	if not istable(node) or not istable(node.call) then
+		FcmdmClearSavedSelection()
+		return
+	end
+
+	curwdata.cache.selectedIdx = index
+	FcmdmSetCurCall(node.call)
+	if FcmdmGetCurCall() ~= node.call then
+		FcmdmClearSavedSelection()
 	end
 end
 
@@ -46,6 +85,7 @@ function FcmdmSetCurWData(target)
 		hook.Run('FcmdmCurWDataChange', curwdata, target)
 		curwdata = target 
 		FcmdmSetCurCall(nil)
+		FcmdmRestoreSavedSelection()
 	end
 end
 
@@ -75,8 +115,11 @@ function FcmdmExpandWheel(state)
 			curwdata.cache.selectedIdx = selectIdx
 
 			local target = curwdata.metadata[selectIdx].call
-			FcmdmSetCurCall(target)
+			local selected = FcmdmSetCurCall(target)
 			if istable(target) then 
+				if selected then
+					FcmdmSaveSelectedCall(selectIdx)
+				end
 				FcmdExecuteCmd(target.sexecute)
 			end
 		end
