@@ -1,4 +1,4 @@
-concommand.Add('fcmd_version', function() print('1.0.0') end)
+concommand.Add('fcmd_version', function() print('1.1.0') end)
 
 local convars = {
 	cl_fcmdm_wheel_size = 500,
