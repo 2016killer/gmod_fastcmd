@@ -6,7 +6,7 @@ local sqrt = math.sqrt
 local cos, sin, atan2, asin = math.cos, math.sin, math.atan2, math.asin
 local gui = gui
 local Vector, Matrix, Angle = Vector, Matrix, Angle
-local draw, surface, hook = draw, surface, hook
+local surface, hook = surface, hook
 
 
 include('fcmd/core/fcmd_wheel.lua')
@@ -18,6 +18,7 @@ local ExecuteCmd = FcmdExecuteCmd
 local ExecuteBreak = FcmdExecuteBreak
 local ExecuteCall = FcmdExecuteCall
 local DrawWheel2D = FcmdDrawWheel2D
+local DrawWheelBackground = FcmdDrawWheelBackground
 local CheckSelect = FcmdCheckSelect
 
 local cmdfilter = FcmdGetCmdFilter()
@@ -206,10 +207,7 @@ local function DrawWheel(size, wdata, state)
 		
 		local fade = rootcache.fade
 
-		draw.NoTexture()
-		-- 淡入黑色背景
-		surface.SetDrawColor(0, 0, 0, fade * state)
-		surface.DrawRect(0, 0, w, h)
+		DrawWheelBackground(size, wdata, state)
 
 		local old = DisableClipping(true)
 		rootcache.fade = 0 -- 禁用2D的淡入绘制

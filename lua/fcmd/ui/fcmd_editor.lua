@@ -68,6 +68,7 @@ local function UpdateNumCache(wdata)
     rootcache.angbound = angbound
 	rootcache.fade = math.max(numdefault(wdata.fade, 100), 0)
 	rootcache.centersize = math.max(numdefault(wdata.centersize, 0.5), 0)
+	rootcache.backgroundsize = math.max(numdefault(wdata.backgroundsize, 1), 0)
 	rootcache.iconsize = math.sin(angbound * 0.25) * 2
 	rootcache.rotate3d = numdefault(wdata.rotate3d, 10) * math.pi / 180
 end
@@ -331,7 +332,7 @@ function FcmdOpenWheelDataEditor(filename)
     local VisualContent = FcmduCreateCustomGrid(
         VisualCategory, 
         {
-            row = 3,
+            row = 4,
             col = 3,
             paddingw = 10,
             h = 20
@@ -340,19 +341,23 @@ function FcmdOpenWheelDataEditor(filename)
     VisualContent:Dock(FILL)
 
 	local ciconinput = FcmduCreateMaterialInput('#fcmdu.cicon', VisualContent)
+    local backgroundinput = FcmduCreateMaterialInput('#fcmdu.background', VisualContent)
 	local arrow = FcmduCreateMaterialInput('#fcmdu.arrow', VisualContent)
 	local edge = FcmduCreateMaterialInput('#fcmdu.edge', VisualContent)
 	local rotate3d = FcmduCreateNumSlider('#fcmdu.rotate3d', VisualContent, 0, 180, 0)
 	local centersize = FcmduCreateNumSlider('#fcmdu.centersize', VisualContent, 0, 1, 3)
+    local backgroundsize = FcmduCreateNumSlider('#fcmdu.backgroundsize', VisualContent, 0, 3, 2)
 	local iconsize = FcmduCreateNumSlider('#fcmdu.iconsize', VisualContent, 0, 1, 3)
 	local fade = FcmduCreateNumSlider('#fcmdu.fade', VisualContent, 0, 255, 0)
     local autoclip = FcmduCreateBoolenButton('#fcmdu.autoclip', '#fcmdu.noclip', VisualContent)
 
     VisualContent:AddItem(ciconinput)
+    VisualContent:AddItem(backgroundinput)
     VisualContent:AddItem(arrow)
     VisualContent:AddItem(edge)
     VisualContent:AddItem(rotate3d)
     VisualContent:AddItem(centersize)
+    VisualContent:AddItem(backgroundsize)
     VisualContent:AddItem(iconsize)
     VisualContent:AddItem(fade)
     VisualContent:AddItem(autoclip)
@@ -472,10 +477,12 @@ function FcmdOpenWheelDataEditor(filename)
     MetadataCategory:SetContents(MetadataContent)
 
     ciconinput:SetValue(strdefault(wdata.cicon, ''))
+    backgroundinput:SetValue(strdefault(wdata.background, ''))
     arrow:SetValue(strdefault(wdata.arrow, ''))
     edge:SetValue(strdefault(wdata.edge, ''))
     rotate3d:SetValue(numdefault(wdata.rotate3d, 10))
     centersize:SetValue(numdefault(wdata.centersize, 0.5))
+    backgroundsize:SetValue(numdefault(wdata.backgroundsize, 1))
     iconsize:SetValue(numdefault(wdata.iconsize, 0.25))
     fade:SetValue(numdefault(wdata.fade, 100))
     autoclip:SetState(wdata.autoclip)
@@ -483,6 +490,12 @@ function FcmdOpenWheelDataEditor(filename)
     function ciconinput:OnValueChange(value)
         wdata.cicon = value
         wdata.cache.cicon = FcmdLoadMaterials(value, cicondefault)
+    end
+
+    function backgroundinput:OnValueChange(value)
+        value = isstring(value) and string.Trim(value) or value
+        wdata.background = value
+        wdata.cache.background = value ~= '' and FcmdLoadMaterials(value) or nil
     end
 
     function arrow:OnValueChange(value)
@@ -502,6 +515,11 @@ function FcmdOpenWheelDataEditor(filename)
 
     function centersize:OnValueChanged(value)
         wdata.centersize = value
+        UpdateNumCache(wdata)
+    end
+
+    function backgroundsize:OnValueChanged(value)
+        wdata.backgroundsize = value
         UpdateNumCache(wdata)
     end
 

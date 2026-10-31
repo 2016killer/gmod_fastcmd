@@ -24,6 +24,29 @@ local function SetMaterial(mat)
 	end
 end
 
+local function DrawWheelBackground(size, wdata, state, preview)
+	local rootcache = wdata.cache
+	local background = rootcache.background
+	local opacity = Clamp(rootcache.fade * state, 0, 255)
+	if not background or opacity <= 0 or rootcache.backgroundsize <= 0 then return end
+
+	local sx, sy = 0, 0
+	local w, h = ScrW(), ScrH()
+	if istable(preview) then
+		sx, sy = preview.x, preview.y
+		w, h = preview.w, preview.h
+	end
+
+	local cx, cy = sx + w * 0.5, sy + h * 0.5
+	local backgroundsize = max(size, 0) * Elasticity(max(state, 0)) * rootcache.backgroundsize
+
+	draw.NoTexture()
+	surface.SetDrawColor(255, 255, 255, opacity)
+	SetMaterial(background)
+	surface.DrawTexturedRectRotated(cx, cy, backgroundsize, backgroundsize, 0)
+end
+FcmdDrawWheelBackground = DrawWheelBackground
+
 function FcmdDrawWheel2D(size, wdata, state, preview)
 	-- 绘制 HUD
 	-- size 菜单尺寸 (直径)
@@ -42,18 +65,14 @@ function FcmdDrawWheel2D(size, wdata, state, preview)
 	local cx, cy = sx + w * 0.5, sy + h * 0.5
 	
 	local stateinterp = Elasticity(state)
+
+	DrawWheelBackground(size, wdata, state, preview)
 	 
 	-- 使用插值后的大小, 图标大小使用等分占比
 	size = max(size, 0) * stateinterp
 	local rootcache = wdata.cache
 	local iconsize = rootcache.iconsize * size
 	local centersize = rootcache.centersize * size
-	local fade = rootcache.fade * state
-
-	draw.NoTexture()
-	-- 淡入黑色背景
-	surface.SetDrawColor(0, 0, 0, fade)
-	surface.DrawRect(sx, sy, w, h)
 	
 	-- 中心图标绘制
 	surface.SetDrawColor(255, 255, 255, 255)

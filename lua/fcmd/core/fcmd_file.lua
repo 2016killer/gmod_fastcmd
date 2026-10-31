@@ -93,6 +93,9 @@ function FcmdParseJSON2WheelData(json)
 	rootcache.cicon = FcmdLoadMaterials(wdata.cicon, cicondefault)
 	rootcache.arrow = FcmdLoadMaterials(wdata.arrow, arrowdefault)
 	rootcache.edge = FcmdLoadMaterials(wdata.edge, edgedefault)
+	if (isstring(wdata.background) and wdata.background ~= '') or isnumber(wdata.background) then
+		rootcache.background = FcmdLoadMaterials(wdata.background)
+	end
 
 	---- 变量边界
 
@@ -105,6 +108,7 @@ function FcmdParseJSON2WheelData(json)
 	rootcache.angbound = angbound
 	rootcache.fade = math.max(numdefault(wdata.fade, 100), 0)
 	rootcache.centersize = math.max(numdefault(wdata.centersize, 0.5), 0)
+	rootcache.backgroundsize = math.max(numdefault(wdata.backgroundsize, 1), 0)
 	rootcache.iconsize = math.sin(angbound * 0.25) * 2
 	rootcache.rotate3d = numdefault(wdata.rotate3d, 10) * math.pi / 180
 
