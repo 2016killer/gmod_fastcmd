@@ -39,7 +39,7 @@ function FcmdDrawWheelBackground(size, wdata, state, preview)
 	surface.DrawTexturedRectRotated(cx, cy, backgroundsize, backgroundsize, 0)
 end
 
-function FcmdDrawWheel2D(size, wdata, state, preview)
+function FcmdDrawWheel2D(size, wdata, state, preview, drawbackground)
 	-- 绘制 HUD
 	-- size 菜单尺寸 (直径)
 	-- wdata 指令数据
@@ -58,7 +58,9 @@ function FcmdDrawWheel2D(size, wdata, state, preview)
 	
 	local stateinterp = FcmdElasticity(state)
 
-	FcmdDrawWheelBackground(size, wdata, state, preview)
+	if drawbackground ~= false then
+		FcmdDrawWheelBackground(size, wdata, state, preview)
+	end
 	 
 	-- 使用插值后的大小, 图标大小使用等分占比
 	size = math.max(size, 0) * stateinterp

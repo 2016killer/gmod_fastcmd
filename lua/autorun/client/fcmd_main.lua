@@ -149,54 +149,62 @@ local zerovec, zeroang = Vector(), Angle()
 local startmartix = Matrix()
 startmartix:SetTranslation(Vector())
 startmartix:SetAngles(Angle(90, 0, -90))
+
+local function StartWheel3D(angle, cx, cy, selectIdx)
+	if angle <= 0 then return false end
+
+	local cammartix = startmartix
+	if selectIdx ~= nil then
+		local dx, dy = gui.MouseX() - cx, gui.MouseY() - cy
+		local dis = math.sqrt(dx * dx + dy * dy)
+		local sina, cosa = math.sin(angle), math.cos(angle)
+		local pitch = math.atan2(dx / dis * sina, cosa) * radunit
+		local roll = math.asin(dy / dis * sina) * radunit
+		local rotate = Matrix()
+		rotate:SetAngles(Angle(pitch, 0, roll))
+		cammartix = rotate * startmartix
+	end
+
+	local campos = Vector(cx, -cy, 0) - cammartix:GetForward() * 1200
+	local camang = cammartix:GetAngles()
+	local old = DisableClipping(true)
+
+	cam.Start3D(campos, camang, 60)
+	render.ClearDepth()
+	cam.Start3D2D(zerovec, zeroang, 1)
+
+	return true, old
+end
+
+local function EndWheel3D(old)
+	cam.End3D2D()
+	cam.End3D()
+	DisableClipping(old)
+end
+
 function FcmdmDrawWheel(size, wdata, state)
 	-- 绘制轮盘 并 运行Hook
-	local rootcache = wdata.cache 
-	local rotate3d = rootcache.rotate3d
-	if rotate3d > 0 then
-		state = math.max(state, 0)
-		local w, h = ScrW(), ScrH()
-		local cx, cy = w * 0.5, h * 0.5
-		
-		-- 计算变换矩阵
-		-- 这个Start3D2D用不明白, 只能用两次旋转合成了
-		local cammartix
-		if rootcache.selectIdx ~= nil then
-			local dx, dy = gui.MouseX() - cx, gui.MouseY() - cy
-			local dis = math.sqrt(dx * dx + dy * dy)
-			local sina, cosa = math.sin(rotate3d), math.cos(rotate3d)
-			local pitch = math.atan2(dx / dis * sina, cosa) * radunit
-			local roll = math.asin(dy / dis * sina) * radunit
-			local rotate = Matrix()
-			rotate:SetAngles(Angle(pitch, 0, roll))
-			cammartix = rotate * startmartix
-		else
-			cammartix = startmartix
-		end
-		local campos, camang = Vector(cx, -cy, 0) - cammartix:GetForward() * 1200, cammartix:GetAngles()
+	local rootcache = wdata.cache
+	state = math.max(state, 0)
 
-		
-		local fade = rootcache.fade
+	local w, h = ScrW(), ScrH()
+	local cx, cy = w * 0.5, h * 0.5
+	local selectIdx = rootcache.selectIdx
 
+	if rootcache.background then
+		local started, old = StartWheel3D(rootcache.backgroundrotate3d, cx, cy, selectIdx)
 		FcmdDrawWheelBackground(size, wdata, state)
+		if started then
+			EndWheel3D(old)
+		end
+	end
 
-		local old = DisableClipping(true)
-		rootcache.fade = 0 -- 禁用2D的淡入绘制
-		
-		cam.Start3D(campos, camang, 60)
-			cam.Start3D2D(zerovec, zeroang, 1)
-				hook.Run('FcmdmPreDrawWheel2D', size, wdata, state)
-				FcmdDrawWheel2D(size, wdata, state)
-				hook.Run('FcmdmPostDrawWheel2D', size, wdata, state)
-			cam.End3D2D() 
-		cam.End3D()
-
-		rootcache.fade = fade -- 恢复数据
-		DisableClipping(old)
-	else
-		hook.Run('FcmdmPreDrawWheel2D', size, wdata, state)
-		FcmdDrawWheel2D(size, wdata, state)
-		hook.Run('FcmdmPostDrawWheel2D', size, wdata, state)
+	local started, old = StartWheel3D(rootcache.rotate3d, cx, cy, selectIdx)
+	hook.Run('FcmdmPreDrawWheel2D', size, wdata, state)
+	FcmdDrawWheel2D(size, wdata, state, nil, false)
+	hook.Run('FcmdmPostDrawWheel2D', size, wdata, state)
+	if started then
+		EndWheel3D(old)
 	end
 end
 

@@ -67,6 +67,7 @@ local function UpdateNumCache(wdata)
 	rootcache.backgroundsize = math.max(numdefault(wdata.backgroundsize, 1), 0)
 	rootcache.iconsize = math.sin(angbound * 0.25) * 2
 	rootcache.rotate3d = numdefault(wdata.rotate3d, 10) * math.pi / 180
+	rootcache.backgroundrotate3d = numdefault(wdata.backgroundrotate3d, numdefault(wdata.rotate3d, 10)) * math.pi / 180
 end
 
 local function UpdateNodeNumCache(wdata)
@@ -346,6 +347,7 @@ function FcmdOpenWheelDataEditor(filename)
 	local iconsize = FcmduCreateNumSlider('#fcmdu.iconsize', VisualContent, 0, 1, 3)
 	local fade = FcmduCreateNumSlider('#fcmdu.fade', VisualContent, 0, 255, 0)
     local autoclip = FcmduCreateBoolenButton('#fcmdu.autoclip', '#fcmdu.noclip', VisualContent)
+    local backgroundrotate3d = FcmduCreateNumSlider('#fcmdu.backgroundrotate3d', VisualContent, 0, 180, 0)
 
     VisualContent:AddItem(ciconinput)
     VisualContent:AddItem(backgroundinput)
@@ -357,6 +359,7 @@ function FcmdOpenWheelDataEditor(filename)
     VisualContent:AddItem(iconsize)
     VisualContent:AddItem(fade)
     VisualContent:AddItem(autoclip)
+    VisualContent:AddItem(backgroundrotate3d)
 
     VisualCategory:SetContents(VisualContent)	
     ----
@@ -482,6 +485,7 @@ function FcmdOpenWheelDataEditor(filename)
     iconsize:SetValue(numdefault(wdata.iconsize, 0.25))
     fade:SetValue(numdefault(wdata.fade, 100))
     autoclip:SetState(wdata.autoclip)
+    backgroundrotate3d:SetValue(numdefault(wdata.backgroundrotate3d, numdefault(wdata.rotate3d, 10)))
 
     function ciconinput:OnValueChange(value)
         wdata.cicon = value
@@ -531,6 +535,11 @@ function FcmdOpenWheelDataEditor(filename)
 
     function autoclip:Trigger(state)
         wdata.autoclip = state
+    end
+
+    function backgroundrotate3d:OnValueChanged(value)
+        wdata.backgroundrotate3d = value
+        UpdateNumCache(wdata)
     end
 
     ----
