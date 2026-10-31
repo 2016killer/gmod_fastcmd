@@ -24,8 +24,7 @@ end
 function FcmdDrawWheelBackground(size, wdata, state, preview)
 	local rootcache = wdata.cache
 	local background = rootcache.background
-	local opacity = math.Clamp(rootcache.fade * state, 0, 255)
-	if not background or opacity <= 0 or rootcache.backgroundsize <= 0 then return end
+	if not background or rootcache.backgroundsize <= 0 then return end
 
 	local sx, sy = 0, 0
 	local w, h = ScrW(), ScrH()
@@ -38,12 +37,28 @@ function FcmdDrawWheelBackground(size, wdata, state, preview)
 	local backgroundsize = math.max(size, 0) * FcmdElasticity(math.max(state, 0)) * rootcache.backgroundsize
 
 	draw.NoTexture()
-	surface.SetDrawColor(255, 255, 255, opacity)
+	surface.SetDrawColor(255, 255, 255, 255)
 	SetMaterial(background)
 	surface.DrawTexturedRectRotated(cx, cy, backgroundsize, backgroundsize, 0)
 end
 
-function FcmdDrawWheel2D(size, wdata, state, preview, drawbackground)
+function FcmdDrawWheelFade(wdata, state, preview)
+	local opacity = math.Clamp(wdata.cache.fade * state, 0, 255)
+	if opacity <= 0 then return end
+
+	local sx, sy = 0, 0
+	local w, h = ScrW(), ScrH()
+	if istable(preview) then
+		sx, sy = preview.x, preview.y
+		w, h = preview.w, preview.h
+	end
+
+	draw.NoTexture()
+	surface.SetDrawColor(0, 0, 0, opacity)
+	surface.DrawRect(sx, sy, w, h)
+end
+
+function FcmdDrawWheel2D(size, wdata, state, preview, drawbackground, drawfade)
 	-- 绘制 HUD
 	-- size 菜单尺寸 (直径)
 	-- wdata 指令数据
@@ -64,6 +79,9 @@ function FcmdDrawWheel2D(size, wdata, state, preview, drawbackground)
 
 	if drawbackground ~= false then
 		FcmdDrawWheelBackground(size, wdata, state, preview)
+	end
+	if drawfade ~= false then
+		FcmdDrawWheelFade(wdata, state, preview)
 	end
 	 
 	-- 使用插值后的大小, 图标大小使用等分占比

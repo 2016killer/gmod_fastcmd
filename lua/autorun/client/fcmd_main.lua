@@ -199,9 +199,11 @@ function FcmdmDrawWheel(size, wdata, state)
 		end
 	end
 
+	FcmdDrawWheelFade(wdata, state)
+
 	local started, old = StartWheel3D(rootcache.rotate3d, cx, cy, selectIdx)
 	hook.Run('FcmdmPreDrawWheel2D', size, wdata, state)
-	FcmdDrawWheel2D(size, wdata, state, nil, false)
+	FcmdDrawWheel2D(size, wdata, state, nil, false, false)
 	hook.Run('FcmdmPostDrawWheel2D', size, wdata, state)
 	if started then
 		EndWheel3D(old)
