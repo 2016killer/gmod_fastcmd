@@ -1,27 +1,8 @@
-local Clamp = math.Clamp
-local pcall = pcall
-local ScrW, ScrH = ScrW, ScrH
-local min, max = math.min, math.max
-local sqrt = math.sqrt
-local cos, sin, atan2, asin = math.cos, math.sin, math.atan2, math.asin
-local gui = gui
-local Vector, Matrix, Angle = Vector, Matrix, Angle
-local surface, hook = surface, hook
-
-
 include('fcmd/core/fcmd_wheel.lua')
 include('fcmd/core/fcmd_execute.lua')
 include('fcmd/core/fcmd_file.lua')
 include('fcmd/core/fcmd_filter.lua')
 
-local ExecuteCmd = FcmdExecuteCmd
-local ExecuteBreak = FcmdExecuteBreak
-local ExecuteCall = FcmdExecuteCall
-local DrawWheel2D = FcmdDrawWheel2D
-local DrawWheelBackground = FcmdDrawWheelBackground
-local CheckSelect = FcmdCheckSelect
-
-local cmdfilter = FcmdGetCmdFilter()
 -----------------------------
 local cl_fcmdm_wheel_size = CreateClientConVar('cl_fcmdm_wheel_size', '500', true, false)
 local cl_fcmdm_expand_key = CreateClientConVar('cl_fcmdm_expand_key', '0', true, false)
@@ -33,15 +14,15 @@ local curcall
 local curwdata
 local expand = false
 
-local function ExecuteCurBreak()
+function FcmdmExecuteCurBreak()
 	-- 执行中断命令
 	if not istable(curcall) then return end
-	hook.Run('FcmdmExecuteBreak', curcall, cmdfilter)
-	ExecuteBreak(curcall, cmdfilter)
+	hook.Run('FcmdmExecuteBreak', curcall, FcmdGetCmdFilter())
+	FcmdExecuteBreak(curcall, FcmdGetCmdFilter())
 end
 
-local function GetCurCall() return curcall end
-local function SetCurCall(target)
+function FcmdmGetCurCall() return curcall end
+function FcmdmSetCurCall(target)
 	-- 切换当前调用指令
 	-- target: 可以是表或nil, 如果是表, 则必须包含合理的pexecute和rexecute字段
 
@@ -53,22 +34,22 @@ local function SetCurCall(target)
 			
 			target.press = nil -- 重置按下状态, 防止切换后第一次是弹起
 		end 
-		ExecuteCurBreak() 
+		FcmdmExecuteCurBreak()
 		hook.Run('FcmdmCurCallChange', curcall, target)
 		curcall = target 
 	end
 end
 
-local function GetCurWData() return curwdata end
-local function SetCurWData(target) 
+function FcmdmGetCurWData() return curwdata end
+function FcmdmSetCurWData(target)
 	if curwdata ~= target then
 		hook.Run('FcmdmCurWDataChange', curwdata, target)
 		curwdata = target 
-		SetCurCall(nil)
+		FcmdmSetCurCall(nil)
 	end
 end
 
-local function ExpandWheel(state)
+function FcmdmExpandWheel(state)
 	-- 展开UI
 	if not istable(curwdata) then
 		expand = false
@@ -94,9 +75,9 @@ local function ExpandWheel(state)
 			curwdata.cache.selectedIdx = selectIdx
 
 			local target = curwdata.metadata[selectIdx].call
-			SetCurCall(target)
+			FcmdmSetCurCall(target)
 			if istable(target) then 
-				ExecuteCmd(target.sexecute) 
+				FcmdExecuteCmd(target.sexecute)
 			end
 		end
 		curwdata.cache.selectIdx = nil
@@ -104,27 +85,17 @@ local function ExpandWheel(state)
 	end
 end
 
-local function GetExpand() return expand end
-local function SetExpand(target) ExpandWheel(target) end
+function FcmdmGetExpand() return expand end
+function FcmdmSetExpand(target) FcmdmExpandWheel(target) end
 
-local function ExecuteCurCall(state)
+function FcmdmExecuteCurCall(state)
 	-- 执行选中
 	-- 展开ui时不执行
 	if expand or not istable(curcall) then return end
 	// PrintTable(curcall)
-	hook.Run('FcmdmExecuteCall', curcall, state, cmdfilter)
-	ExecuteCall(curcall, state, cmdfilter)
+	hook.Run('FcmdmExecuteCall', curcall, state, FcmdGetCmdFilter())
+	FcmdExecuteCall(curcall, state, FcmdGetCmdFilter())
 end
-
-FcmdmExecuteCurCall = ExecuteCurCall
-FcmdmExecuteCurBreak = ExecuteCurBreak
-FcmdmExpandWheel = ExpandWheel
-FcmdmGetCurWData = GetCurWData
-FcmdmSetCurWData = SetCurWData
-FcmdmGetCurCall = GetCurCall
-FcmdmSetCurCall = SetCurCall
-FcmdmGetExpand = GetExpand
-FcmdmSetExpand = SetExpand
 
 function FcmdmLoadCurWData(filename)
 	LocalPlayer():ConCommand('cl_fcmdm_wfile ""')
@@ -141,7 +112,7 @@ function FcmdmClearCurWData()
 	LocalPlayer():ConCommand('cl_fcmdm_wfile ""')
 end
 
-table.Merge(cmdfilter, {
+table.Merge(FcmdGetCmdFilter(), {
 	['+fcmdm_expand'] = true,
 	['-fcmdm_expand'] = true,
 	['+fcmdm_call'] = true,
@@ -163,27 +134,27 @@ cvars.AddChangeCallback('cl_fcmdm_wfile', function(name, old, new)
 		end
 	end
 
-	SetCurWData(newdata)
+	FcmdmSetCurWData(newdata)
 end, 'aaa')
 
-concommand.Add('+fcmdm_expand', function(ply) ExpandWheel(true) end)
-concommand.Add('-fcmdm_expand', function(ply) ExpandWheel(false) end)
-concommand.Add('+fcmdm_call', function(ply) ExecuteCurCall(true) end)
-concommand.Add('-fcmdm_call', function(ply) ExecuteCurCall(false) end)
+concommand.Add('+fcmdm_expand', function(ply) FcmdmExpandWheel(true) end)
+concommand.Add('-fcmdm_expand', function(ply) FcmdmExpandWheel(false) end)
+concommand.Add('+fcmdm_call', function(ply) FcmdmExecuteCurCall(true) end)
+concommand.Add('-fcmdm_call', function(ply) FcmdmExecuteCurCall(false) end)
 
-concommand.Add('fcmdm_break', function(ply) ExecuteCurBreak() end)
+concommand.Add('fcmdm_break', function(ply) FcmdmExecuteCurBreak() end)
 
 local radunit = 180 / math.pi
 local zerovec, zeroang = Vector(), Angle()
 local startmartix = Matrix()
 startmartix:SetTranslation(Vector())
 startmartix:SetAngles(Angle(90, 0, -90))
-local function DrawWheel(size, wdata, state)
+function FcmdmDrawWheel(size, wdata, state)
 	-- 绘制轮盘 并 运行Hook
 	local rootcache = wdata.cache 
 	local rotate3d = rootcache.rotate3d
 	if rotate3d > 0 then
-		state = max(state, 0)
+		state = math.max(state, 0)
 		local w, h = ScrW(), ScrH()
 		local cx, cy = w * 0.5, h * 0.5
 		
@@ -192,10 +163,10 @@ local function DrawWheel(size, wdata, state)
 		local cammartix
 		if rootcache.selectIdx ~= nil then
 			local dx, dy = gui.MouseX() - cx, gui.MouseY() - cy
-			local dis = sqrt(dx * dx + dy * dy)
-			local sina, cosa = sin(rotate3d), cos(rotate3d)
-			local pitch = atan2(dx / dis * sina, cosa) * radunit
-			local roll = asin(dy / dis * sina) * radunit
+			local dis = math.sqrt(dx * dx + dy * dy)
+			local sina, cosa = math.sin(rotate3d), math.cos(rotate3d)
+			local pitch = math.atan2(dx / dis * sina, cosa) * radunit
+			local roll = math.asin(dy / dis * sina) * radunit
 			local rotate = Matrix()
 			rotate:SetAngles(Angle(pitch, 0, roll))
 			cammartix = rotate * startmartix
@@ -207,7 +178,7 @@ local function DrawWheel(size, wdata, state)
 		
 		local fade = rootcache.fade
 
-		DrawWheelBackground(size, wdata, state)
+		FcmdDrawWheelBackground(size, wdata, state)
 
 		local old = DisableClipping(true)
 		rootcache.fade = 0 -- 禁用2D的淡入绘制
@@ -215,7 +186,7 @@ local function DrawWheel(size, wdata, state)
 		cam.Start3D(campos, camang, 60)
 			cam.Start3D2D(zerovec, zeroang, 1)
 				hook.Run('FcmdmPreDrawWheel2D', size, wdata, state)
-				DrawWheel2D(size, wdata, state)
+				FcmdDrawWheel2D(size, wdata, state)
 				hook.Run('FcmdmPostDrawWheel2D', size, wdata, state)
 			cam.End3D2D() 
 		cam.End3D()
@@ -224,11 +195,10 @@ local function DrawWheel(size, wdata, state)
 		DisableClipping(old)
 	else
 		hook.Run('FcmdmPreDrawWheel2D', size, wdata, state)
-		DrawWheel2D(size, wdata, state)
+		FcmdDrawWheel2D(size, wdata, state)
 		hook.Run('FcmdmPostDrawWheel2D', size, wdata, state)
 	end
 end
-FcmdmDrawWheel = DrawWheel
 
 -----------------------------
 local expandKey = false
@@ -238,7 +208,7 @@ local function ExpandKeyEvent()
 	if key == 0 then return end
 	local current = input.IsKeyDown(key) or input.IsMouseDown(key)
 	if expandKey ~= current then 
-		ExpandWheel(current) 
+		FcmdmExpandWheel(current)
 	end
 	expandKey = current
 end
@@ -250,7 +220,7 @@ local function CallKeyEvent()
 	if key == 0 then return end
 	local current = input.IsKeyDown(key) or input.IsMouseDown(key)
 	if callKey ~= current then 
-		ExecuteCurCall(current) 
+		FcmdmExecuteCurCall(current)
 	end
 	callKey = current
 end
@@ -262,7 +232,7 @@ local function BreakKeyEvent()
 	if key == 0 then return end
 	local current = input.IsKeyDown(key) or input.IsMouseDown(key)
 	if current and breakKey ~= current then 
-		ExecuteCurBreak() 
+		FcmdmExecuteCurBreak()
 	end
 	breakKey = current
 end
@@ -282,7 +252,7 @@ concommand.Add('fcmdm_add_hook', function(ply, cmd, args)
 
 		-- 检查选中
 		local rootcache = curwdata.cache
-		local selectIdx = CheckSelect(
+		local selectIdx = FcmdCheckSelect(
 			rootcache.centersize * cl_fcmdm_wheel_size:GetInt(), 
 			curwdata
 		)
@@ -312,16 +282,16 @@ concommand.Add('fcmdm_add_hook', function(ply, cmd, args)
 		
 		if not istable(curwdata) then return end
 		if expand then
-			expandstate = Clamp(expandstate + 5 * RealFrameTime(), 0, 1)
+			expandstate = math.Clamp(expandstate + 5 * RealFrameTime(), 0, 1)
 		else
-			expandstate = Clamp(expandstate - 5 * RealFrameTime(), 0, 1)
+			expandstate = math.Clamp(expandstate - 5 * RealFrameTime(), 0, 1)
 		end
 		if expandstate == 0 then 
 			return 
 		end
 		
 		-- 使用多个全局渲染设置, 异常时必须着重处理
-		local succ, err = pcall(DrawWheel, cl_fcmdm_wheel_size:GetInt(), curwdata, expandstate)
+		local succ, err = pcall(FcmdmDrawWheel, cl_fcmdm_wheel_size:GetInt(), curwdata, expandstate)
 		
 		if not succ then	
 			render.ClearStencil()
@@ -334,7 +304,7 @@ concommand.Add('fcmdm_add_hook', function(ply, cmd, args)
 
 			ErrorNoHaltWithStack(err)
 			FcmdError('#fcmdm.err.fatal', '#fcmdm.err.hook_die')
-			ExpandWheel(false)
+			FcmdmExpandWheel(false)
 		end
 	end)
 end)

@@ -14,14 +14,13 @@ for k, v in pairs(convars) do
 end
 
 
-local phrase = language.GetPhrase
 -------------------------菜单
 hook.Add('PopulateToolMenu', 'fcmd_menu', function()
 	spawnmenu.AddToolMenuOption(
 		'Utilities', 
-		phrase('#fcmdu.menu.category'), 
+		language.GetPhrase('#fcmdu.menu.category'),
 		'fcmd_menu',
-		phrase('#fcmdu.menu.name'), '', '', 
+		language.GetPhrase('#fcmdu.menu.name'), '', '',
 		function(panel)
 			panel:Clear()
 
@@ -32,22 +31,22 @@ hook.Add('PopulateToolMenu', 'fcmd_menu', function()
 				ctrl:AddOption('#preset.default', convars)
 				panel:AddPanel(ctrl)
 
-			panel:NumSlider(phrase('#fcmdu.wheel_size'), 'cl_fcmdm_wheel_size', 0, 1000, 0)
+			panel:NumSlider(language.GetPhrase('#fcmdu.wheel_size'), 'cl_fcmdm_wheel_size', 0, 1000, 0)
 
 			-- 按键绑定
 			panel:KeyBinder(
-				phrase('#fcmdu.expand_key'), 
+				language.GetPhrase('#fcmdu.expand_key'),
 				'cl_fcmdm_expand_key', 
-				phrase('#fcmdu.call_key'),
+				language.GetPhrase('#fcmdu.call_key'),
 				'cl_fcmdm_call_key'
 			)
 			panel:KeyBinder(
-				phrase('#fcmdu.break_key'), 
+				language.GetPhrase('#fcmdu.break_key'),
 				'cl_fcmdm_break_key'
 			)
 
 
-			panel:TextEntry(phrase('#fcmdu.wfile'), 'cl_fcmdm_wfile')
+			panel:TextEntry(language.GetPhrase('#fcmdu.wfile'), 'cl_fcmdm_wfile')
 
 			-- 轮盘数据浏览器
 			local body = vgui.Create('DPanel', panel)
@@ -61,7 +60,7 @@ hook.Add('PopulateToolMenu', 'fcmd_menu', function()
 			
 
 			-- 编辑器按钮
-			local EditorBtn = panel:Button(phrase('#fcmdu.editor'), '')
+			local EditorBtn = panel:Button(language.GetPhrase('#fcmdu.editor'), '')
 			EditorBtn.DoClick = function()
 				if WheelDataBrowser.selectFile then
 					LocalPlayer():ConCommand(string.format('fcmdu_open_editor "%s"', WheelDataBrowser.selectFile))
@@ -70,8 +69,8 @@ hook.Add('PopulateToolMenu', 'fcmd_menu', function()
 				end
 			end
 
-			panel:Button(phrase('#fcmdu.add_hook'), 'fcmdm_add_hook')
-			panel:CheckBox(phrase('#fcmdu.notify'), 'cl_fcmd_notify')
+			panel:Button(language.GetPhrase('#fcmdu.add_hook'), 'fcmdm_add_hook')
+			panel:CheckBox(language.GetPhrase('#fcmdu.notify'), 'cl_fcmd_notify')
 		end
 	)
 end)

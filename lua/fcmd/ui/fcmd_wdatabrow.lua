@@ -1,7 +1,6 @@
 
 include('fcmd/core/fcmd_file.lua')
 local rootpath = 'fastcmd/wheel'
-local min, max = math.min, math.max
 
 local function EnumPathNoExist(filePath)
 	local path = string.GetPathFromFilename(filePath)

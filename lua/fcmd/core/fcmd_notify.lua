@@ -1,11 +1,10 @@
 local cl_fcmd_notify = CreateClientConVar('cl_fcmd_notify', '1', true, false)
-local phrase = language.GetPhrase
 
 function FcmdProgress(...)
 	if cl_fcmd_notify:GetBool() then
 		local text = ''
 		for _, v in ipairs({...}) do
-			text = text .. phrase(v) .. ' '
+			text = text .. language.GetPhrase(v) .. ' '
 		end
 		notification.AddProgress('fcmd_notify_progress', text)
 		timer.Simple(0.5, function()
@@ -19,7 +18,7 @@ function FcmdHelp(...)
 		surface.PlaySound('NPC.ButtonBlip1')
 		local text = ''
 		for _, v in ipairs({...}) do
-			text = text .. phrase(v) .. ' '
+			text = text .. language.GetPhrase(v) .. ' '
 		end
 		notification.AddLegacy(text, NOTIFY_HINT, 5)
 	end
@@ -30,7 +29,7 @@ function FcmdError(...)
 	if cl_fcmd_notify:GetBool() then
 		local text = ''
 		for _, v in ipairs({...}) do
-			text = text .. phrase(v) .. ' '
+			text = text .. language.GetPhrase(v) .. ' '
 		end
 		notification.AddLegacy(text, NOTIFY_ERROR, 5)
 	end
@@ -41,7 +40,7 @@ function FcmdWarn(...)
 	if cl_fcmd_notify:GetBool() then
 		local text = ''
 		for _, v in ipairs({...}) do
-			text = text .. phrase(v) .. ' '
+			text = text .. language.GetPhrase(v) .. ' '
 		end
 		notification.AddLegacy(text, NOTIFY_GENERIC, 5)
 	end

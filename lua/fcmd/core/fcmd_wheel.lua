@@ -1,17 +1,10 @@
-local ScrW, ScrH = ScrW, ScrH
-local gui = gui
-local sin, atan2 = math.sin, math.atan2
-local max, min, Clamp = math.max, math.min, math.Clamp
 local halfpi = math.pi * 0.5
 local radunit = 180 / math.pi
-local surface = surface
-local RealFrameTime = RealFrameTime
-local Vector = Vector
 local circlemask = Material('fastcmd/hud/circlemask')
 
-local function Elasticity(x)
+function FcmdElasticity(x)
 	if x >= 1 then return 1 end
-	return x * 1.4301676 + sin(x * 4.0212386) * 0.55866
+	return x * 1.4301676 + math.sin(x * 4.0212386) * 0.55866
 end
 
 
@@ -24,10 +17,10 @@ local function SetMaterial(mat)
 	end
 end
 
-local function DrawWheelBackground(size, wdata, state, preview)
+function FcmdDrawWheelBackground(size, wdata, state, preview)
 	local rootcache = wdata.cache
 	local background = rootcache.background
-	local opacity = Clamp(rootcache.fade * state, 0, 255)
+	local opacity = math.Clamp(rootcache.fade * state, 0, 255)
 	if not background or opacity <= 0 or rootcache.backgroundsize <= 0 then return end
 
 	local sx, sy = 0, 0
@@ -38,21 +31,20 @@ local function DrawWheelBackground(size, wdata, state, preview)
 	end
 
 	local cx, cy = sx + w * 0.5, sy + h * 0.5
-	local backgroundsize = max(size, 0) * Elasticity(max(state, 0)) * rootcache.backgroundsize
+	local backgroundsize = math.max(size, 0) * FcmdElasticity(math.max(state, 0)) * rootcache.backgroundsize
 
 	draw.NoTexture()
 	surface.SetDrawColor(255, 255, 255, opacity)
 	SetMaterial(background)
 	surface.DrawTexturedRectRotated(cx, cy, backgroundsize, backgroundsize, 0)
 end
-FcmdDrawWheelBackground = DrawWheelBackground
 
 function FcmdDrawWheel2D(size, wdata, state, preview)
 	-- 绘制 HUD
 	-- size 菜单尺寸 (直径)
 	-- wdata 指令数据
 	-- state 尺寸插值比例
-	state = max(state, 0)
+	state = math.max(state, 0)
 
 	local x, y = gui.MouseX(), gui.MouseY()
 	local sx, sy = 0, 0
@@ -64,12 +56,12 @@ function FcmdDrawWheel2D(size, wdata, state, preview)
 	end
 	local cx, cy = sx + w * 0.5, sy + h * 0.5
 	
-	local stateinterp = Elasticity(state)
+	local stateinterp = FcmdElasticity(state)
 
-	DrawWheelBackground(size, wdata, state, preview)
+	FcmdDrawWheelBackground(size, wdata, state, preview)
 	 
 	-- 使用插值后的大小, 图标大小使用等分占比
-	size = max(size, 0) * stateinterp
+	size = math.max(size, 0) * stateinterp
 	local rootcache = wdata.cache
 	local iconsize = rootcache.iconsize * size
 	local centersize = rootcache.centersize * size
@@ -81,7 +73,7 @@ function FcmdDrawWheel2D(size, wdata, state, preview)
 
 	-- 箭头图标绘制
 	if rootcache.selectIdx ~= nil then
-		local mouseang = (atan2(y - cy, x - cx) + halfpi) * radunit
+		local mouseang = (math.atan2(y - cy, x - cx) + halfpi) * radunit
 		SetMaterial(rootcache.arrow)
 		surface.DrawTexturedRectRotated(cx, cy, centersize, centersize, -mouseang)
 	end
@@ -122,10 +114,10 @@ function FcmdDrawWheel2D(size, wdata, state, preview)
 		local cache = data.cache
 		-- 为选择的图标添加附加距离
 		if rootcache.selectIdx == i then
-			cache.addlen = Clamp(cache.addlen + 10 * RealFrameTime(), 0, 1)
+			cache.addlen = math.Clamp(cache.addlen + 10 * RealFrameTime(), 0, 1)
 			surface.SetDrawColor(255, 255, 255)
 		else
-			cache.addlen = Clamp(cache.addlen - 10 * RealFrameTime(), 0, 1)
+			cache.addlen = math.Clamp(cache.addlen - 10 * RealFrameTime(), 0, 1)
 			surface.SetDrawColor(150, 150, 150)
 		end
 		local lpos = size * cache.dir * (0.5 + cache.addlen * 0.1)
@@ -192,5 +184,3 @@ function FcmdCheckSelect(size, wdata)
 
 	return 0
 end
-
-FcmdElasticity = Elasticity

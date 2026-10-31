@@ -1,5 +1,3 @@
-local min, max = math.min, math.max
-
 local function SetMaterial(mat)
 	if istable(mat) then
 		-- 处理异步材质
@@ -53,7 +51,7 @@ function FcmduOpenMaterialsBrowser()
 	function ViewPort:Paint(w, h)
 		draw.RoundedBox(5, 0, 0, w, h, background)
 		if MaterialsBrowser.selectmaterial then
-			local matWidth = min(w, h)
+			local matWidth = math.min(w, h)
 			local cx, cy = (w - matWidth) * 0.5, (h - matWidth) * 0.5
 			surface.SetDrawColor(255, 255, 255, 255)
 			SetMaterial(MaterialsBrowser.selectmaterial)
@@ -122,7 +120,7 @@ function FcmduOpenMaterialsBrowser()
 		page = math.Clamp(num, 1, pagemax) 
 
 		local start = (page - 1) * pnum + 1
-		local ed = min(page * pnum, #addonsfilter)
+		local ed = math.min(page * pnum, #addonsfilter)
 		for i = start, ed do
 			local addon = addonsfilter[i]
 			local wsid = addon.wsid

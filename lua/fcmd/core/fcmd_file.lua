@@ -4,8 +4,6 @@ local cicondefault = Material('fastcmd/hud/cicon.png')
 local arrowdefault = Material('fastcmd/hud/arrow.png')
 local icondefault = Material('fastcmd/hud/default.jpg')
 local edgedefault = Material('fastcmd/hud/edge.png')
-local rotate3d = 10
-local cl_fcmd_notify = CreateClientConVar('cl_fcmd_notify', '1', true, false)
 ------------------------------
 local function numdefault(num, default)
 	return isnumber(num) and num or default

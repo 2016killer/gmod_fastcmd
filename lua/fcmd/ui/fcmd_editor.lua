@@ -1,8 +1,4 @@
-min, max = math.min, math.max
-surface = surface
 include('fcmd/core/fcmd_wheel.lua') 
-local DrawWheel2D = FcmdDrawWheel2D
-local DrawBounds = FcmdDrawBounds
 -------------------------
 local background = Color(255, 255, 255, 100)
 local background2 = Color(100, 100, 100, 200)
@@ -30,8 +26,8 @@ local function SetMaterial(mat)
 end
 
 local function SafeDrawWheel2D(size, wdata, preview)
-    local succ1, err1 = pcall(DrawWheel2D, size, wdata, 1, preview)
-    local succ2, err2 = pcall(DrawBounds, size, wdata, preview)
+    local succ1, err1 = pcall(FcmdDrawWheel2D, size, wdata, 1, preview)
+    local succ2, err2 = pcall(FcmdDrawBounds, size, wdata, preview)
 
     local succ = succ1 and succ2
 	if not succ then
@@ -318,7 +314,7 @@ function FcmdOpenWheelDataEditor(filename)
 			w = newWidth,
 			h = newHeight,
 		}
-		self.size = min(newWidth, newHeight) * 0.5
+		self.size = math.min(newWidth, newHeight) * 0.5
 	end
 
 
