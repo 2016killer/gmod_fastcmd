@@ -1,0 +1,13 @@
+{
+  "title": "指令轮盘2",
+  "type": "tool",
+  "tags": [
+    "fun",
+    "realism",
+    "movie"
+  ],
+  "ignore": [
+    "binary/**",
+    "img/**"
+  ]
+}
