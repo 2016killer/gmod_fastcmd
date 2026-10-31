@@ -1,0 +1,10 @@
+"UnlitGeneric"
+{
+	"$basetexture" "hitman/pointshooting"
+	"$vertexcolor" "1"
+	"$vertexalpha" "1"
+	"$color" "[2 2 2]"
+
+	"$selfillum" "1"
+	"$additive" "1" 
+}
