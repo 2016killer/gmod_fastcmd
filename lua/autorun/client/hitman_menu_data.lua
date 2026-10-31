@@ -2,7 +2,7 @@ local filepath = 'fastcmd/wheel/hitman_menu.json'
 local json = [[
 {
 	"centersize": 0.4276315789473684,
-	"arrow": "hud/dishonored/menu_selector_fcmd.png",
+	"arrow": "",
 	"cicon": "",
 	"iconsize": 0.26973684210526316,
 	"background": "",
@@ -10,13 +10,12 @@ local json = [[
 	"autoclip": false,
 	"backgroundrotate3d": 5,
 	"background3d": true,
-	"fade": 199.63815789473685,
 	"metadata": [
 		{
 			"call": {
 				"pexecute": "mightyfootengaged"
 			},
-			"icon": "trails/electric"
+			"icon": "hitman/kick.vmt"
 		},
 		{
 			"call": {
@@ -33,6 +32,7 @@ local json = [[
 			"icon": "hitman/pointshooting.vmt"
 		}
 	],
+	"fade": 199.63815789473685,
 	"icondistance": 0.7796052631578947,
 	"edge": "",
 	"style": "hitman_menu"
