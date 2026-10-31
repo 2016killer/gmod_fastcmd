@@ -107,6 +107,8 @@ function FcmdParseJSON2WheelData(json)
 	rootcache.fade = math.max(numdefault(wdata.fade, 100), 0)
 	rootcache.centersize = math.max(numdefault(wdata.centersize, 0.5), 0)
 	rootcache.backgroundsize = math.max(numdefault(wdata.backgroundsize, 1), 0)
+	wdata.icondistance = math.max(numdefault(wdata.icondistance, 1), 0)
+	rootcache.icondistance = wdata.icondistance
 	rootcache.iconsize = math.sin(angbound * 0.25) * 2
 	rootcache.rotate3d = numdefault(wdata.rotate3d, 10) * math.pi / 180
 	wdata.backgroundrotate3d = numdefault(wdata.backgroundrotate3d, numdefault(wdata.rotate3d, 10))
@@ -307,6 +309,7 @@ function FcmdCreateWheelData(folder)
 {
 	"autoclip": true,
 	"backgroundrotate3d": 10,
+	"icondistance": 1,
 	"metadata": [
 		{
 			"call": {

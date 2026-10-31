@@ -17,6 +17,10 @@ local function SetMaterial(mat)
 	end
 end
 
+local function GetIconOffset(size, cache, icondistance)
+	return cache.dir * (size * 0.5 * (icondistance + cache.addlen * 0.2))
+end
+
 function FcmdDrawWheelBackground(size, wdata, state, preview)
 	local rootcache = wdata.cache
 	local background = rootcache.background
@@ -67,6 +71,7 @@ function FcmdDrawWheel2D(size, wdata, state, preview, drawbackground)
 	local rootcache = wdata.cache
 	local iconsize = rootcache.iconsize * size
 	local centersize = rootcache.centersize * size
+	local icondistance = rootcache.icondistance or 1
 	
 	-- 中心图标绘制
 	surface.SetDrawColor(255, 255, 255, 255)
@@ -99,7 +104,7 @@ function FcmdDrawWheel2D(size, wdata, state, preview, drawbackground)
 		render.OverrideColorWriteEnable(true, false)
 		for i, data in ipairs(wdata.metadata) do	 
 			local cache = data.cache
-			local lpos = size * cache.dir * (0.5 + cache.addlen * 0.1)
+			local lpos = GetIconOffset(size, cache, icondistance)
 
 			surface.DrawTexturedRectRotated(
 				cx + lpos.x, 
@@ -122,7 +127,7 @@ function FcmdDrawWheel2D(size, wdata, state, preview, drawbackground)
 			cache.addlen = math.Clamp(cache.addlen - 10 * RealFrameTime(), 0, 1)
 			surface.SetDrawColor(150, 150, 150)
 		end
-		local lpos = size * cache.dir * (0.5 + cache.addlen * 0.1)
+		local lpos = GetIconOffset(size, cache, icondistance)
 
 		SetMaterial(cache.icon)
 		surface.DrawTexturedRectRotated(cx + lpos.x, cy + lpos.y, iconsize, iconsize, 0)
@@ -136,7 +141,7 @@ function FcmdDrawWheel2D(size, wdata, state, preview, drawbackground)
 
 		for i, data in ipairs(wdata.metadata) do	 
 			local cache = data.cache
-			local lpos = size * cache.dir * (0.5 + cache.addlen * 0.1)
+			local lpos = GetIconOffset(size, cache, icondistance)
 
 			surface.DrawTexturedRectRotated(
 				cx + lpos.x, 

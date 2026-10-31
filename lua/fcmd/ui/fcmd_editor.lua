@@ -65,6 +65,7 @@ local function UpdateNumCache(wdata)
 	rootcache.fade = math.max(numdefault(wdata.fade, 100), 0)
 	rootcache.centersize = math.max(numdefault(wdata.centersize, 0.5), 0)
 	rootcache.backgroundsize = math.max(numdefault(wdata.backgroundsize, 1), 0)
+	rootcache.icondistance = math.max(numdefault(wdata.icondistance, 1), 0)
 	rootcache.iconsize = math.sin(angbound * 0.25) * 2
 	rootcache.rotate3d = numdefault(wdata.rotate3d, 10) * math.pi / 180
 	rootcache.backgroundrotate3d = numdefault(wdata.backgroundrotate3d, numdefault(wdata.rotate3d, 10)) * math.pi / 180
@@ -345,6 +346,7 @@ function FcmdOpenWheelDataEditor(filename)
 	local centersize = FcmduCreateNumSlider('#fcmdu.centersize', VisualContent, 0, 1, 3)
     local backgroundsize = FcmduCreateNumSlider('#fcmdu.backgroundsize', VisualContent, 0, 3, 2)
 	local iconsize = FcmduCreateNumSlider('#fcmdu.iconsize', VisualContent, 0, 1, 3)
+	local icondistance = FcmduCreateNumSlider('#fcmdu.icondistance', VisualContent, 0, 1.5, 3)
 	local fade = FcmduCreateNumSlider('#fcmdu.fade', VisualContent, 0, 255, 0)
     local autoclip = FcmduCreateBoolenButton('#fcmdu.autoclip', '#fcmdu.noclip', VisualContent)
     local backgroundrotate3d = FcmduCreateNumSlider('#fcmdu.backgroundrotate3d', VisualContent, 0, 180, 0)
@@ -357,6 +359,7 @@ function FcmdOpenWheelDataEditor(filename)
     VisualContent:AddItem(centersize)
     VisualContent:AddItem(backgroundsize)
     VisualContent:AddItem(iconsize)
+    VisualContent:AddItem(icondistance)
     VisualContent:AddItem(fade)
     VisualContent:AddItem(autoclip)
     VisualContent:AddItem(backgroundrotate3d)
@@ -483,6 +486,7 @@ function FcmdOpenWheelDataEditor(filename)
     centersize:SetValue(numdefault(wdata.centersize, 0.5))
     backgroundsize:SetValue(numdefault(wdata.backgroundsize, 1))
     iconsize:SetValue(numdefault(wdata.iconsize, 0.25))
+    icondistance:SetValue(numdefault(wdata.icondistance, 1))
     fade:SetValue(numdefault(wdata.fade, 100))
     autoclip:SetState(wdata.autoclip)
     backgroundrotate3d:SetValue(numdefault(wdata.backgroundrotate3d, numdefault(wdata.rotate3d, 10)))
@@ -525,6 +529,11 @@ function FcmdOpenWheelDataEditor(filename)
 
     function iconsize:OnValueChanged(value)
         wdata.iconsize = value
+        UpdateNumCache(wdata)
+    end
+
+    function icondistance:OnValueChanged(value)
+        wdata.icondistance = value
         UpdateNumCache(wdata)
     end
 
